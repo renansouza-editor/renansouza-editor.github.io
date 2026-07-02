@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renan Souza — High-Retention Video Editor</title>
+<meta name="description" content="Renan Souza — High-retention video editor for YouTube, Gaming VODs and Shorts. Fast-paced edits built to maximize AVD.">
+
+<!-- Google Fonts: Inter (variable weight range used for both display and body copy) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ==========================================================================
+     1. DESIGN TOKENS
+     All colors, spacing, and type scale are centralized here so the "All-Black"
+     premium system stays consistent across every section.
+     ========================================================================== */
+  :root{
+    /* Core palette */
+    --bg:            #0d0d11;   /* page background */
+    --bg-elevated:   #111118;   /* slightly raised sections */
+    --card:          #16161f;   /* card surface */
+    --card-border:   #26262f;   /* hairline borders on cards */
+    --text-primary:  #ffffff;
+    --text-secondary:#94a3b8;
+    --text-muted:    #5b5b6b;
+
+    /* Accents */
+    --accent:        #7c3aed;   /* electric purple — primary accent */
+    --accent-hover:  #9257ff;
+    --accent-soft:   rgba(124, 58, 237, 0.12);
+    --accent-green:  #22c55e;   /* used sparingly: status / success cues */
+
+    /* Type */
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace; /* timecode / editor-style data */
+
+    /* Layout */
+    --max-width: 1180px;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+  }
+
+  /* ==========================================================================
+     2. RESET & BASE
+     ========================================================================== */
+  *, *::before, *::after{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  img, svg{ display: block; max-width: 100%; }
+
+  a{ color: inherit; text-decoration: none; }
+
+  ul{ list-style: none; }
+
+  section{ position: relative; }
+
+  .container{
+    width: 100%;
+    max-width: var(--max-width);
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+
+  /* Ambient background glow — a single restrained accent, not scattered gradients */
+  body::before{
+    content: "";
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    width: 900px;
+    height: 900px;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  :focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    html{ scroll-behavior: auto; }
+  }
+
+  /* ==========================================================================
+     3. TYPOGRAPHY UTILITIES
+     ========================================================================== */
+  .eyebrow{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .eyebrow::before{
+    content: "";
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1, h2, h3{
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+  }
+
+  .section-heading{
+    font-size: clamp(28px, 4vw, 42px);
+    margin-top: 14px;
+  }
+
+  .section-sub{
+    color: var(--text-secondary);
+    font-size: 16px;
+    max-width: 560px;
+    margin-top: 12px;
+  }
+
+  .section-head{
+    margin-bottom: 48px;
+  }
+
+  /* ==========================================================================
+     4. HEADER / NAV
+     ========================================================================== */
+  .site-header{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px);
+    background: rgba(13, 13, 17, 0.72);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .site-header .container{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+
+  .logo{
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+  }
+
+  .logo span{ color: var(--accent); }
+
+  .nav-links{
+    display: flex;
+    gap: 32px;
+  }
+
+  .nav-links a{
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+
+  .nav-links a:hover{ color: var(--text-primary); }
+
+  @media (max-width: 720px){
+    .nav-links{ display: none; }
+  }
+
+  /* Shared button styles */
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 26px;
+    border-radius: var(--radius-sm);
+    font-size: 14.5px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    white-space: nowrap;
+  }
+
+  .btn:hover{ transform: translateY(-2px); }
+
+  .btn-primary{
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover{ background: var(--accent-hover); }
+
+  .btn-ghost{
+    background: transparent;
+    border-color: var(--card-border);
+    color: var(--text-primary);
+  }
+  .btn-ghost:hover{ border-color: var(--accent); }
+
+  .btn-sm{ padding: 10px 18px; font-size: 13px; }
+
+  /* ==========================================================================
+     5. HERO SECTION
+     ========================================================================== */
+  .hero{
+    padding: 110px 0 90px;
+    text-align: center;
+  }
+
+  .hero-name{
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+    margin-bottom: 22px;
+  }
+
+  .hero-name b{ color: var(--text-primary); font-weight: 600; }
+
+  .hero-status{
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: 10px;
+    padding: 3px 10px 3px 8px;
+    border: 1px solid var(--card-border);
+    border-radius: 100px;
+    font-size: 11.5px;
+    color: var(--accent-green);
+  }
+
+  .hero-status .dot{
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    box-shadow: 0 0 8px var(--accent-green);
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes pulse{
+    0%, 100%{ opacity: 1; }
+    50%{ opacity: 0.35; }
+  }
+
+  .hero h1{
+    font-size: clamp(38px, 6.4vw, 74px);
+    max-width: 900px;
+    margin-inline: auto;
+  }
+
+  .hero h1 em{
+    font-style: normal;
+    background: linear-gradient(90deg, var(--accent) 0%, #b794ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero p.subhead{
+    max-width: 620px;
+    margin: 26px auto 0;
+    color: var(--text-secondary);
+    font-size: clamp(15px, 1.6vw, 18px);
+  }
+
+  .hero-cta-row{
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* --- Signature element: editor's timeline scrubber ---
+     A horizontal ruler with tick marks and a moving playhead, echoing the
+     timeline of a video-editing NLE. Grounds the "high-retention editor"
+     positioning in the actual visual language of the craft. */
+  .timeline-signature{
+    max-width: 640px;
+    margin: 64px auto 0;
+    position: relative;
+  }
+
+  .timeline-track{
+    position: relative;
+    height: 3px;
+    background: var(--card-border);
+    border-radius: 4px;
+    overflow: visible;
+  }
+
+  .timeline-progress{
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: 42%;
+    background: var(--accent);
+    border-radius: 4px;
+  }
+
+  .timeline-playhead{
+    position: absolute;
+    top: 50%;
+    left: 42%;
+    width: 13px; height: 13px;
+    background: var(--text-primary);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: scrub 6s ease-in-out infinite;
+  }
+
+  @keyframes scrub{
+    0%, 100%{ left: 8%; }
+    50%{ left: 88%; }
+  }
+
+  .timeline-ticks{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .timeline-ticks span{
+    width: 1px;
+    height: 6px;
+    background: var(--text-muted);
+  }
+
+  .timeline-meta{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  #timecode{ color: var(--text-secondary); }
+
+  /* ==========================================================================
+     6. PORTFOLIO SECTION
+     ========================================================================== */
+  .portfolio{ padding: 90px 0 40px; }
+
+  .category-block{ margin-bottom: 72px; }
+
+  .category-block:last-child{ margin-bottom: 0; }
+
+  .category-title{
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: clamp(19px, 2.4vw, 24px);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .category-title .count{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .category-desc{
+    color: var(--text-secondary);
+    font-size: 14.5px;
+    margin-bottom: 26px;
+    max-width: 560px;
+  }
+
+  /* Grid for standard 16:9 video groups */
+  .video-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  /* Grid for vertical 9:16 shorts — narrower columns */
+  .video-grid.shorts{
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    max-width: 620px;
+  }
+
+  .video-card{ display: flex; flex-direction: column; gap: 14px; }
+
+  /* The placeholder embed — swap the inner element for a real
+     <iframe src="https://www.youtube.com/embed/VIDEO_ID"> when ready. */
+  .video-embed{
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(155deg, #1a1a24 0%, #121218 100%);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: border-color 0.25s ease;
+  }
+
+  .video-embed.vertical{ aspect-ratio: 9 / 16; }
+
+  .video-embed:hover{ border-color: var(--accent); }
+
+  .video-embed .placeholder-inner{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 20px;
+  }
+
+  .play-icon{
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+  }
+
+  .video-embed .placeholder-inner span{
+    font-size: 12.5px;
+    letter-spacing: 0.03em;
+  }
+
+  .video-caption{
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .video-caption b{ color: var(--text-primary); font-weight: 600; }
+
+  /* ==========================================================================
+     7. PRICING SECTION
+     ========================================================================== */
+  .pricing{ padding: 90px 0; }
+
+  .pricing-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .price-card{
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 36px 30px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+
+  .price-card:hover{
+    transform: translateY(-6px);
+    border-color: rgba(124, 58, 237, 0.45);
+  }
+
+  .price-card.featured{
+    border-color: var(--accent);
+    background: linear-gradient(180deg, rgba(124,58,237,0.08) 0%, var(--card) 40%);
+    position: relative;
+  }
+
+  .price-card .badge{
+    position: absolute;
+    top: -13px;
+    left: 30px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 100px;
+  }
+
+  .price-card h3{
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  .price-card .price-tag-desc{
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin-bottom: 22px;
+  }
+
+  .price-card .price{
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .price-card .price span{
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .price-card .unit{
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 26px;
+  }
+
+  .price-card ul{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+    flex-grow: 1;
+  }
+
+  .price-card li{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .price-card li svg{
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: var(--accent-green);
+  }
+
+  .price-card .btn{ width: 100%; }
+
+  /* ==========================================================================
+     8. FOOTER / CONTACT
+     ========================================================================== */
+  .contact-footer{
+    padding: 100px 0 50px;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 40px;
+  }
+
+  .contact-footer h2{
+    font-size: clamp(30px, 5vw, 48px);
+    max-width: 640px;
+    margin-inline: auto;
+  }
+
+  .contact-footer .section-sub{ margin-inline: auto; }
+
+  .contact-links{
+    margin-top: 44px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .contact-link{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  }
+
+  .contact-link:hover{
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    background: var(--accent-soft);
+  }
+
+  .contact-link svg{ width: 18px; height: 18px; }
+
+  .footer-meta{
+    margin-top: 70px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ==========================================================================
+     9. RESPONSIVE ADJUSTMENTS — MOBILE
+     ========================================================================== */
+  @media (max-width: 560px){
+    .hero{ padding: 84px 0 64px; }
+    .hero-cta-row{ flex-direction: column; align-items: stretch; }
+    .timeline-signature{ display: none; } /* keeps mobile hero tight & fast */
+    .video-grid.shorts{ max-width: 100%; }
+    .contact-links{ flex-direction: column; }
+    .price-card{ padding: 30px 24px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       HEADER
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="container">
+      <a href="#top" class="logo">RENAN <span>SOUZA</span></a>
+      <nav class="nav-links" aria-label="Section navigation">
+        <a href="#portfolio">Work</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a href="#contact" class="btn btn-primary btn-sm">Let's Work Together</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ==========================================================================
+         1. HERO SECTION
+         ========================================================================== -->
+    <section class="hero container">
+      <p class="hero-name">
+        <b>Renan Souza</b> — Video Editor
+        <span class="hero-status"><span class="dot"></span>Available for new projects</span>
+      </p>
+
+      <h1>High-Retention Video Editor for <em>YouTube &amp; Shorts</em></h1>
+
+      <p class="subhead">
+        I transform raw streams and gaming VODs into highly engaging, fast-paced
+        content designed to maximize AVD (Average View Duration).
+      </p>
+
+      <div class="hero-cta-row">
+        <a href="#contact" class="btn btn-primary">Let's Work Together</a>
+        <a href="#portfolio" class="btn btn-ghost">View Portfolio</a>
+      </div>
+
+      <!-- Signature element: an editor's timeline scrubber, standing in for the
+           "hero image" — appropriate to a video editor's own toolkit. -->
+      <div class="timeline-signature" aria-hidden="true">
+        <div class="timeline-track">
+          <div class="timeline-progress"></div>
+          <div class="timeline-playhead"></div>
+        </div>
+        <div class="timeline-ticks">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="timeline-meta">
+          <span id="timecode">00:00:00:00</span>
+          <span>RETENTION_CUT_V3.PROJ</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         2. PORTFOLIO GRID
+         ========================================================================== -->
+    <section class="portfolio container" id="portfolio">
+      <div class="section-head">
+        <span class="eyebrow">Portfolio</span>
+        <h2 class="section-heading">Selected Work</h2>
+        <p class="section-sub">
+          A sample of edit styles — from long-form VOD retention cuts to
+          short-form hooks built for the algorithm.
+        </p>
+      </div>
+
+      <!-- Category 1: Gaming & Live Stream VODs -->
+      <div class="category-block">
+        <h3 class="category-title">Gaming &amp; Live Stream VODs <span class="count">01</span></h3>
+        <p class="category-desc">
+          Full-length VOD edits engineered to hold attention across long runtimes.
+        </p>
+        <div class="video-grid">
+          <div class="video-card">
+            <!-- Replace this div with: <iframe src="https://www.youtube.com/embed/VIDEO_ID" ...></iframe> -->
+            <div class="video-embed">
+              <div class="placeholder-inner">
+                <span class="play-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+                <span>YouTube Video Embed Placeholder</span>
+              </div>
+            </div>
+            <p class="video-caption">
+              <b>Case Study:</b> High-pacing retention edit from a 3-hour raw stream.
+              Focused on comedic timing, custom HUD/scoreboards, and aggressive
+              retention hooks.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category 2: Short Form Content -->
+      <div class="category-block">
+        <h3 class="category-title">Short Form Content (TikTok / Shorts) <span class="count">02</span></h3>
+        <p class="category-desc">
+          Vertical, sub-60-second cuts built around a single hook and a fast payoff.
+        </p>
+        <div class="video-grid shorts">
+          <div class="video-card">
+            <div class="video-embed vertical">
+              <div class="placeholder-inner">
+                <span class="play-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+                <span>YouTube Video Embed Placeholder</span>
+              </div>
+            </div>
+            <p class="video-caption"><b>Short 01:</b> Hook-driven clip pulled from a longer VOD, re-cut for vertical retention.</p>
+          </div>
+          <div class="video-card">
+            <div class="video-embed vertical">
+              <div class="placeholder-inner">
+                <span class="play-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+                <span>YouTube Video Embed Placeholder</span>
+              </div>
+            </div>
+            <p class="video-caption"><b>Short 02:</b> Punchy captions and sound design timed to the beat drop.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category 3: Talking Head & Creative Edits -->
+      <div class="category-block">
+        <h3 class="category-title">Talking Head &amp; Creative Edits <span class="count">03</span></h3>
+        <p class="category-desc">
+          Podcast, vlog and interview-style edits with dynamic subtitles and b-roll.
+        </p>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-embed">
+              <div class="placeholder-inner">
+                <span class="play-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+                <span>YouTube Video Embed Placeholder</span>
+              </div>
+            </div>
+            <p class="video-caption"><b>Case Study:</b> Talking-head interview tightened with jump-cut pacing, kinetic captions, and light motion-graphic overlays.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         3. PRICING & RATES
+         ========================================================================== -->
+    <section class="pricing container" id="pricing">
+      <div class="section-head">
+        <span class="eyebrow">Rates</span>
+        <h2 class="section-heading">Pricing &amp; Packages</h2>
+        <p class="section-sub">
+          Straightforward packages built for creators who need consistent,
+          fast turnaround edits. Custom retainers available on request.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+
+        <!-- Package 1: Short Form -->
+        <div class="price-card">
+          <h3>Short Form Package</h3>
+          <p class="price-tag-desc">For TikTok, Reels &amp; YouTube Shorts</p>
+          <div class="price">$45<span>/ video</span></div>
+          <p class="unit">Billed per delivered clip</p>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Title &amp; hook research</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Dynamic animated subtitles</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Sound effects &amp; transitions</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Color grading</li>
+          </ul>
+          <a href="#contact" class="btn btn-ghost">Order Package</a>
+        </div>
+
+        <!-- Package 2: Long Form (featured) -->
+        <div class="price-card featured">
+          <span class="badge">Most Requested</span>
+          <h3>Long Form Video (VOD / YouTube)</h3>
+          <p class="price-tag-desc">Full stream &amp; VOD retention edits</p>
+          <div class="price">$180<span>/ video</span></div>
+          <p class="unit">Up to 45 min final runtime</p>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Full VOD scraping &amp; sync</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Custom pacing &amp; story structure</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Visual assets &amp; overlays</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Retention-curve mapping</li>
+          </ul>
+          <a href="#contact" class="btn btn-primary">Order Package</a>
+        </div>
+
+        <!-- Package 3: Custom / retainer -->
+        <div class="price-card">
+          <h3>Channel Management</h3>
+          <p class="price-tag-desc">Weekly / monthly retainer for full channels</p>
+          <div class="price">Custom<span>/ quote</span></div>
+          <p class="unit">Volume-based pricing</p>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Ongoing weekly video output</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Consistent brand style guide</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Priority turnaround</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Direct Discord support line</li>
+          </ul>
+          <a href="#contact" class="btn btn-ghost">Order Package</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         4. FOOTER / CONTACT
+         ========================================================================== -->
+    <footer class="contact-footer container" id="contact">
+      <span class="eyebrow" style="justify-content:center;">Get In Touch</span>
+      <h2>Ready to scale your retention and views?</h2>
+      <p class="section-sub">
+        Send over your raw footage or channel details and I'll reply within
+        24 hours with a turnaround estimate.
+      </p>
+
+      <div class="contact-links">
+        <a class="contact-link" href="https://discord.com/users/yourusername" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.2.36-.42.85-.573 1.24a18.27 18.27 0 0 0-5.97 0A12.6 12.6 0 0 0 9.442 3a19.74 19.74 0 0 0-3.76 1.37C2.79 8.48 2.06 12.47 2.42 16.4a19.9 19.9 0 0 0 6.03 3.04c.49-.66.92-1.37 1.29-2.12-.71-.27-1.38-.6-2.02-.99.17-.12.34-.25.5-.38a14.2 14.2 0 0 0 11.56 0c.16.13.33.26.5.38-.64.39-1.32.72-2.02.99.37.75.8 1.46 1.29 2.12a19.85 19.85 0 0 0 6.03-3.04c.43-4.54-.73-8.5-3.26-12.03ZM9.7 14.1c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.69 1.75-1.56 1.75Zm4.6 0c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.68 1.75-1.56 1.75Z"/></svg>
+          Discord
+        </a>
+        <a class="contact-link" href="mailto:hello@renansouza.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          hello@renansouza.com
+        </a>
+        <a class="contact-link" href="https://twitter.com/yourusername" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-6.9L4.8 22H1.7l8.1-9.3L1 2h7.1l4.9 6.3L18.9 2Zm-1.2 18h1.9L7.4 4H5.4l12.3 16Z"/></svg>
+          Twitter / X
+        </a>
+      </div>
+
+      <div class="footer-meta">
+        <span>&copy; <span id="year"></span> Renan Souza.</span>
+        <span>All rights reserved.</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <script>
+    // ==========================================================================
+    // Small progressive-enhancement script:
+    // 1) Auto-fills the footer copyright year.
+    // 2) Animates the hero "timecode" readout to echo an NLE playhead moving
+    //    across the timeline. Purely decorative — respects reduced-motion.
+    // ==========================================================================
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const timecodeEl = document.getElementById('timecode');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (timecodeEl && !prefersReducedMotion) {
+      let frame = 0;
+      const fps = 24;
+
+      function formatTimecode(totalFrames) {
+        const f = totalFrames % fps;
+        const totalSeconds = Math.floor(totalFrames / fps);
+        const s = totalSeconds % 60;
+        const totalMinutes = Math.floor(totalSeconds / 60);
+        const m = totalMinutes % 60;
+        const h = Math.floor(totalMinutes / 60);
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${pad(h)}:${pad(m)}:${pad(s)}:${pad(f)}`;
+      }
+
+      setInterval(() => {
+        frame = (frame + 1) % (fps * 60 * 60); // loop after an hour of "footage"
+        timecodeEl.textContent = formatTimecode(frame);
+      }, 1000 / fps);
+    }
+  </script>
+
+</body>
+</html>
