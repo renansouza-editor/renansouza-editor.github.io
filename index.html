@@ -496,11 +496,10 @@
   .thumb-play{
     position: absolute;
     z-index: 2;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 56px; height: 56px;
+    top: 14px; left: 14px;
+    width: 40px; height: 40px;
     border-radius: 50%;
-    background: rgba(13,13,17,0.55);
+    background: rgba(13,13,17,0.6);
     border: 1px solid rgba(255,255,255,0.28);
     display: flex;
     align-items: center;
@@ -510,44 +509,62 @@
   }
 
   .video-embed.thumbnail:hover .thumb-play{
-    transform: translate(-50%, -50%) scale(1.08);
+    transform: scale(1.08);
     background: var(--accent);
   }
 
-  /* --- Hover caption overlay (used on the long-form showcase card) --- */
+  /* --- Hover caption: a discreet bottom bar, not a full-card overlay.
+       Keeps the external "raw footage" link small and tucked in a corner
+       so people don't click it by accident instead of opening the modal. --- */
   .hover-caption{
     position: absolute;
-    inset: 0;
+    left: 0; right: 0; bottom: 0;
     z-index: 3;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 10px;
-    text-align: center;
-    padding: 24px;
-    background: rgba(13,13,17,0.86);
+    padding: 16px;
+    background: linear-gradient(180deg, transparent 0%, rgba(13,13,17,0.92) 65%);
     opacity: 0;
-    transition: opacity 0.25s ease;
+    transform: translateY(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
   }
 
-  .video-embed.thumbnail:hover .hover-caption{ opacity: 1; }
+  .video-embed.thumbnail:hover .hover-caption{
+    opacity: 1;
+    transform: translateY(0);
+  }
 
   .hover-caption p{
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: 600;
     color: var(--text-primary);
-    max-width: 260px;
+    max-width: 70%;
+    line-height: 1.4;
   }
 
   .hover-caption a{
-    font-size: 12px;
-    color: var(--accent-hover);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border: 1px solid var(--card-border);
+    padding: 5px 10px;
+    border-radius: 100px;
+    white-space: nowrap;
+    transition: color 0.2s ease, border-color 0.2s ease;
   }
 
-  .hover-caption a:hover{ color: var(--text-primary); }
+  .hover-caption a svg{ width: 10px; height: 10px; }
+
+  .hover-caption a:hover{
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
 
   /* --- Premium proof card: an "aura" that signals real, verifiable results --- */
   .premium-card{ position: relative; }
@@ -564,7 +581,7 @@
 
   .premium-badge{
     position: absolute;
-    top: 10px; left: 10px;
+    top: 10px; right: 10px;
     z-index: 4;
     display: flex;
     align-items: center;
@@ -721,6 +738,64 @@
 
   .copy-toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  /* --- Hero trust line: reduces friction right under the main CTA --- */
+  .hero-trust{
+    margin-top: 22px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .hero-trust span:not(:last-child)::after{
+    content: "•";
+    margin-left: 8px;
+    color: var(--card-border);
+  }
+
+  /* ==========================================================================
+     6b. PROCESS SECTION ("How It Works") — a real, ordered sequence, so
+     numbering the steps actually encodes useful information here.
+     ========================================================================== */
+  .process{ padding: 70px 0 90px; }
+
+  .process-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 8px;
+  }
+
+  .process-step{
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 26px 24px;
+  }
+
+  .process-step .step-num{
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .process-step h3{
+    font-size: 16.5px;
+    margin-bottom: 8px;
+  }
+
+  .process-step p{
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
   /* ==========================================================================
      7. PRICING SECTION
      ========================================================================== */
@@ -820,6 +895,13 @@
   }
 
   .price-card .btn{ width: 100%; }
+
+  .price-card .order-note{
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 10px;
+  }
 
   /* ==========================================================================
      8. FOOTER / CONTACT
@@ -929,6 +1011,12 @@
         <a href="#portfolio" class="btn btn-ghost">View Portfolio</a>
       </div>
 
+      <p class="hero-trust">
+        <span>Reply within 24 hours</span>
+        <span>No long-term contract</span>
+        <span>Revisions included</span>
+      </p>
+
       <!-- Signature element: an editor's timeline scrubber, standing in for the
            "hero image" — appropriate to a video editor's own toolkit. -->
       <div class="timeline-signature" aria-hidden="true">
@@ -977,19 +1065,24 @@
         </p>
         <div class="video-grid">
           <div class="video-card">
-            <!-- Real embed: click opens the video fullscreen in-page (see #video-modal) -->
+            <!-- Re-hosted on Google Drive after the original YouTube upload
+                 was taken down by a copyright claim. Click opens it fullscreen
+                 in-page (see #video-modal). -->
             <div class="video-embed thumbnail"
-                 style="background-image:url('https://img.youtube.com/vi/C_2PwKY_B7g/maxresdefault.jpg');"
-                 onclick="openVideoModal('C_2PwKY_B7g','16:9')"
-                 onkeydown="if(event.key==='Enter')openVideoModal('C_2PwKY_B7g','16:9')"
+                 style="background-image:url('https://drive.google.com/thumbnail?id=1WFEIk3lFCh0XtP5rXD7OpUAii4EjzIsG&amp;sz=w1000'), linear-gradient(155deg, #1a1a24 0%, #121218 100%);"
+                 onclick="openVideoModal('1WFEIk3lFCh0XtP5rXD7OpUAii4EjzIsG','16:9','drive')"
+                 onkeydown="if(event.key==='Enter')openVideoModal('1WFEIk3lFCh0XtP5rXD7OpUAii4EjzIsG','16:9','drive')"
                  role="button" tabindex="0" aria-label="Play video fullscreen">
               <div class="thumb-dim"></div>
               <div class="thumb-play">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
               </div>
               <div class="hover-caption">
-                <p>One of the examples of the video style I'm capable of making.</p>
-                <a href="https://www.youtube.com/watch?v=kevZNeRyVlg&amp;t=3092s" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Watch the full raw VOD →</a>
+                <p>One of the video styles I can deliver.</p>
+                <a href="https://www.youtube.com/watch?v=kevZNeRyVlg&amp;t=3092s" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+                  Raw footage
+                </a>
               </div>
             </div>
             <p class="video-caption">
@@ -1023,7 +1116,7 @@
               </span>
               <div class="thumb-dim"></div>
               <div class="thumb-play">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
               </div>
             </div>
             <p class="video-caption"><b>My Proudest Edit:</b> the very first video I ever posted on this channel — it brought in 717 new subscribers on its own. Hover to see the real numbers.</p>
@@ -1065,6 +1158,36 @@
     </section>
 
     <!-- ==========================================================================
+         2b. HOW IT WORKS — a real, ordered process, placed right after the
+         proof of work and right before pricing, so the path to closing a
+         deal is explicit rather than implied.
+         ========================================================================== -->
+    <section class="process container">
+      <div class="section-head">
+        <span class="eyebrow">Process</span>
+        <h2 class="section-heading">How We'll Work Together</h2>
+        <p class="section-sub">Three steps, start to finish. No lengthy onboarding.</p>
+      </div>
+      <div class="process-grid">
+        <div class="process-step">
+          <span class="step-num">01</span>
+          <h3>Send your footage</h3>
+          <p>Share a raw stream, VOD, or clip via Google Drive, WeTransfer, or a direct link — along with the tone you're going for.</p>
+        </div>
+        <div class="process-step">
+          <span class="step-num">02</span>
+          <h3>I edit for retention</h3>
+          <p>Pacing, captions, sound design, and hooks are built around keeping viewers watching, not just cutting dead air.</p>
+        </div>
+        <div class="process-step">
+          <span class="step-num">03</span>
+          <h3>Review &amp; approve</h3>
+          <p>You get a first cut to review, request changes, and approve — then the final file is delivered ready to publish.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
          3. PRICING & RATES
          ========================================================================== -->
     <section class="pricing container" id="pricing">
@@ -1091,7 +1214,8 @@
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Sound effects &amp; transitions</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Color grading</li>
           </ul>
-          <a href="#contact" class="btn btn-ghost">Order Package</a>
+          <a href="mailto:justrenan777@gmail.com?subject=Short%20Form%20Package%20Inquiry&body=Hi%20Renan%2C%0A%0AI'd%20like%20to%20order%20the%20Short%20Form%20Package.%0A%0AHere's%20a%20link%20to%20my%20channel%20or%20raw%20footage%3A%20" class="btn btn-ghost">Order Package</a>
+          <p class="order-note">Opens your email, pre-filled</p>
         </div>
 
         <!-- Package 2: Long Form (featured) -->
@@ -1107,7 +1231,8 @@
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Visual assets &amp; overlays</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Retention-curve mapping</li>
           </ul>
-          <a href="#contact" class="btn btn-primary">Order Package</a>
+          <a href="mailto:justrenan777@gmail.com?subject=Long%20Form%20Video%20Package%20Inquiry&body=Hi%20Renan%2C%0A%0AI'd%20like%20to%20order%20the%20Long%20Form%20Video%20Package.%0A%0AHere's%20a%20link%20to%20my%20VOD%20or%20raw%20footage%3A%20" class="btn btn-primary">Order Package</a>
+          <p class="order-note">Opens your email, pre-filled</p>
         </div>
 
         <!-- Package 3: Custom / retainer -->
@@ -1122,7 +1247,8 @@
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Priority turnaround</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Direct Discord support line</li>
           </ul>
-          <a href="#contact" class="btn btn-ghost">Order Package</a>
+          <a href="mailto:justrenan777@gmail.com?subject=Channel%20Management%20Inquiry&body=Hi%20Renan%2C%0A%0AI'm%20interested%20in%20a%20Channel%20Management%20retainer.%0A%0AHere's%20a%20bit%20about%20my%20channel%20and%20how%20many%20videos%20per%20week%20I%20need%3A%20" class="btn btn-ghost">Order Package</a>
+          <p class="order-note">Opens your email, pre-filled</p>
         </div>
 
       </div>
@@ -1235,15 +1361,20 @@
     // The iframe is injected only when opened, and removed on close, so the
     // video actually stops playing instead of running muted in the background.
     // ==========================================================================
-    function openVideoModal(videoId, ratio) {
+    function openVideoModal(videoId, ratio, platform) {
       const modal = document.getElementById('video-modal');
       const inner = document.getElementById('video-modal-inner');
       const wrap = document.getElementById('video-modal-frame-wrap');
 
       inner.classList.toggle('vertical', ratio === '9:16');
+
+      const src = platform === 'drive'
+        ? `https://drive.google.com/file/d/${videoId}/preview`
+        : `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+
       wrap.innerHTML =
-        `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" ` +
-        `title="Video player" allow="autoplay; encrypted-media; picture-in-picture" ` +
+        `<iframe src="${src}" title="Video player" ` +
+        `allow="autoplay; encrypted-media; picture-in-picture" ` +
         `allowfullscreen></iframe>`;
 
       modal.classList.add('open');
