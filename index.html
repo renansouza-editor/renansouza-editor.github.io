@@ -360,6 +360,52 @@
   #timecode{ color: var(--text-secondary); }
 
   /* ==========================================================================
+     5b. ABOUT ME SECTION
+     ========================================================================== */
+  .about{ padding: 30px 0 90px; }
+
+  .about-grid{
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 56px;
+    align-items: center;
+  }
+
+  .about-photo-wrap{
+    position: relative;
+    width: 100%;
+  }
+
+  .about-photo-wrap::before{
+    content: "";
+    position: absolute;
+    inset: -18px;
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 72%);
+    z-index: -1;
+  }
+
+  .about-photo{
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+  }
+
+  .about-content .btn{ margin-top: 26px; }
+
+  @media (max-width: 720px){
+    .about-grid{
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    .about-photo-wrap{ max-width: 220px; margin-inline: auto; }
+    .about-content .eyebrow{ justify-content: center; }
+    .about-content .section-sub{ margin-inline: auto; }
+  }
+
+  /* ==========================================================================
      6. PORTFOLIO SECTION
      ========================================================================== */
   .portfolio{ padding: 90px 0 40px; }
@@ -903,6 +949,13 @@
     margin-top: 10px;
   }
 
+  .price-card .price-note{
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: -4px;
+    margin-bottom: 4px;
+  }
+
   /* ==========================================================================
      8. FOOTER / CONTACT
      ========================================================================== */
@@ -949,6 +1002,140 @@
 
   .contact-link svg{ width: 18px; height: 18px; }
 
+  /* --- Redesigned, tidier contact grid (replaces the old pill row) --- */
+  .contact-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+    margin-top: 48px;
+    text-align: left;
+  }
+
+  .contact-card{
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .contact-card:hover{
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+
+  .contact-card.highlight{
+    border-color: #25d366;
+    background: linear-gradient(180deg, rgba(37,211,102,0.09) 0%, var(--card) 45%);
+  }
+
+  .contact-card-icon{
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-soft);
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .contact-card-icon svg{ width: 18px; height: 18px; }
+
+  .contact-card.highlight .contact-card-icon{
+    background: rgba(37,211,102,0.16);
+    color: #25d366;
+  }
+
+  .contact-card h3{ font-size: 15px; font-weight: 700; }
+
+  .contact-card p{
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .contact-card p a{
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .contact-card p a:hover{ color: var(--text-primary); }
+
+  .contact-card-action{
+    margin-top: auto;
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: transparent;
+    border: 1px solid var(--card-border);
+    padding: 9px 16px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .contact-card-action:hover{
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .contact-card.highlight .contact-card-action{ border-color: #25d366; }
+
+  .contact-card.highlight .contact-card-action:hover{ background: rgba(37,211,102,0.14); }
+
+  /* --- Floating WhatsApp button — fixed, always visible --- */
+  .whatsapp-float{
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 900;
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    background: #25d366;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .whatsapp-float::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid #25d366;
+    animation: waPulse 2.4s ease-out infinite;
+  }
+
+  @keyframes waPulse{
+    0%{ transform: scale(1); opacity: 0.7; }
+    100%{ transform: scale(1.7); opacity: 0; }
+  }
+
+  .whatsapp-float:hover{
+    transform: scale(1.08);
+    box-shadow: 0 14px 36px rgba(0,0,0,0.55);
+  }
+
+  .whatsapp-float svg{ width: 29px; height: 29px; }
+
+  @media (max-width: 560px){
+    .whatsapp-float{ width: 52px; height: 52px; bottom: 18px; right: 18px; }
+    .whatsapp-float svg{ width: 25px; height: 25px; }
+  }
+
   .footer-meta{
     margin-top: 70px;
     display: flex;
@@ -980,6 +1167,7 @@
     <div class="container">
       <a href="#top" class="logo">RENAN <span>SOUZA</span></a>
       <nav class="nav-links" aria-label="Section navigation">
+        <a href="#about">About</a>
         <a href="#portfolio">Work</a>
         <a href="#pricing">Pricing</a>
         <a href="#contact">Contact</a>
@@ -1032,6 +1220,33 @@
         <div class="timeline-meta">
           <span id="timecode">00:00:00:00</span>
           <span>RETENTION_CUT_V3.PROJ</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         1b. ABOUT ME
+         Photo file expected at the repo root as "minhafoto.png", right next
+         to this index.html, so GitHub Pages can serve it directly.
+         ========================================================================== -->
+    <section class="about container" id="about">
+      <div class="about-grid">
+        <div class="about-photo-wrap">
+          <img src="minhafoto.png" alt="Renan Souza, video editor" class="about-photo" loading="lazy">
+        </div>
+        <div class="about-content">
+          <span class="eyebrow">About Me</span>
+          <h2 class="section-heading">Hi, I'm Renan.</h2>
+          <p class="section-sub" style="max-width:520px;">
+            I'm passionate about editing videos that people actually enjoy watching.
+            I specialize in turning long recordings into fast-paced, engaging content
+            built around retention.
+          </p>
+          <p class="section-sub" style="max-width:520px;">
+            Every project is edited with attention to pacing, storytelling, and the
+            small details that make viewers stay until the end.
+          </p>
+          <a href="#contact" class="btn btn-primary">Let's Work Together</a>
         </div>
       </div>
     </section>
@@ -1213,6 +1428,8 @@
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Dynamic animated subtitles</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Sound effects &amp; transitions</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Color grading</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>24–48h turnaround</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Up to 1 round of revisions included</li>
           </ul>
           <a href="mailto:justrenan777@gmail.com?subject=Short%20Form%20Package%20Inquiry&body=Hi%20Renan%2C%0A%0AI'd%20like%20to%20order%20the%20Short%20Form%20Package.%0A%0AHere's%20a%20link%20to%20my%20channel%20or%20raw%20footage%3A%20" class="btn btn-ghost">Order Package</a>
           <p class="order-note">Opens your email, pre-filled</p>
@@ -1224,12 +1441,15 @@
           <h3>Long Form Video (VOD / YouTube)</h3>
           <p class="price-tag-desc">Full stream &amp; VOD retention edits</p>
           <div class="price">$180<span>/ video</span></div>
-          <p class="unit">Up to 45 min final runtime</p>
+          <p class="unit">Up to 25 min final cut • from max 2h raw VOD</p>
+          <p class="price-note">(+$30 per additional hour of raw footage)</p>
           <ul>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Full VOD scraping &amp; sync</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Custom pacing &amp; story structure</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Visual assets &amp; overlays</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Retention-curve mapping</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Optimized for viewer retention</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>3–5 days turnaround</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Up to 2 rounds of revisions included</li>
           </ul>
           <a href="mailto:justrenan777@gmail.com?subject=Long%20Form%20Video%20Package%20Inquiry&body=Hi%20Renan%2C%0A%0AI'd%20like%20to%20order%20the%20Long%20Form%20Video%20Package.%0A%0AHere's%20a%20link%20to%20my%20VOD%20or%20raw%20footage%3A%20" class="btn btn-primary">Order Package</a>
           <p class="order-note">Opens your email, pre-filled</p>
@@ -1242,10 +1462,13 @@
           <div class="price">Custom<span>/ quote</span></div>
           <p class="unit">Volume-based pricing</p>
           <ul>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Ongoing weekly video output</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Consistent brand style guide</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Priority turnaround</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Direct Discord support line</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Fixed monthly retainer packages</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Content repurposing (1 long-form + multiple shorts)</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Extended raw VODs &amp; longer final runtime</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Express 24–48h turnaround available</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Flexible number of revision rounds</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Specialized visual effects &amp; pacing</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Direct 1-on-1 Discord support line</li>
           </ul>
           <a href="mailto:justrenan777@gmail.com?subject=Channel%20Management%20Inquiry&body=Hi%20Renan%2C%0A%0AI'm%20interested%20in%20a%20Channel%20Management%20retainer.%0A%0AHere's%20a%20bit%20about%20my%20channel%20and%20how%20many%20videos%20per%20week%20I%20need%3A%20" class="btn btn-ghost">Order Package</a>
           <p class="order-note">Opens your email, pre-filled</p>
@@ -1265,27 +1488,53 @@
         24 hours with a turnaround estimate.
       </p>
 
-      <div class="contact-links">
-        <button class="contact-link" type="button" onclick="copyDiscord()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.2.36-.42.85-.573 1.24a18.27 18.27 0 0 0-5.97 0A12.6 12.6 0 0 0 9.442 3a19.74 19.74 0 0 0-3.76 1.37C2.79 8.48 2.06 12.47 2.42 16.4a19.9 19.9 0 0 0 6.03 3.04c.49-.66.92-1.37 1.29-2.12-.71-.27-1.38-.6-2.02-.99.17-.12.34-.25.5-.38a14.2 14.2 0 0 0 11.56 0c.16.13.33.26.5.38-.64.39-1.32.72-2.02.99.37.75.8 1.46 1.29 2.12a19.85 19.85 0 0 0 6.03-3.04c.43-4.54-.73-8.5-3.26-12.03ZM9.7 14.1c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.69 1.75-1.56 1.75Zm4.6 0c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.68 1.75-1.56 1.75Z"/></svg>
-          wispzjesus
-        </button>
-        <a class="contact-link" href="mailto:renansouzadeoliveira08@gmail.com">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-          renansouzadeoliveira08@gmail.com
-        </a>
-        <a class="contact-link" href="mailto:justrenan777@gmail.com">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-          justrenan777@gmail.com
-        </a>
-        <a class="contact-link" href="https://x.com/internetfrags" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-6.9L4.8 22H1.7l8.1-9.3L1 2h7.1l4.9 6.3L18.9 2Zm-1.2 18h1.9L7.4 4H5.4l12.3 16Z"/></svg>
-          @internetfrags
-        </a>
+      <div class="contact-grid">
+
+        <!-- WhatsApp — highlighted as the fastest way to reach out -->
+        <div class="contact-card highlight">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.28-1.38a9.9 9.9 0 0 0 4.71 1.2h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.07c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.12-1.8-.11-.42-.14-.95-.32-1.63-.62-2.87-1.24-4.74-4.12-4.88-4.31-.14-.19-1.17-1.55-1.17-2.96 0-1.4.74-2.09 1-2.38.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.17.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.48-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.61-.07.16-.19.7-.81.88-1.09.19-.28.37-.23.62-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.12.07.68-.17 1.36Z"/></svg>
+          </span>
+          <h3>WhatsApp</h3>
+          <p>Fastest way to reach me — usually replies within a few hours.</p>
+          <a class="contact-card-action" href="https://wa.me/5551992340825?text=Hi%20Renan!%0A%0AI%20found%20your%20portfolio%20and%20I%27m%20interested%20in%20working%20with%20you." target="_blank" rel="noopener noreferrer">
+            Message on WhatsApp
+          </a>
+        </div>
+
+        <!-- Email — two addresses, either works -->
+        <div class="contact-card">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          </span>
+          <h3>Email</h3>
+          <p>
+            <a href="mailto:renansouzadeoliveira08@gmail.com">renansouzadeoliveira08@gmail.com</a><br>
+            <a href="mailto:justrenan777@gmail.com">justrenan777@gmail.com</a>
+          </p>
+        </div>
+
+        <!-- Discord — copies the username, since a direct link isn't possible -->
+        <div class="contact-card">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.2.36-.42.85-.573 1.24a18.27 18.27 0 0 0-5.97 0A12.6 12.6 0 0 0 9.442 3a19.74 19.74 0 0 0-3.76 1.37C2.79 8.48 2.06 12.47 2.42 16.4a19.9 19.9 0 0 0 6.03 3.04c.49-.66.92-1.37 1.29-2.12-.71-.27-1.38-.6-2.02-.99.17-.12.34-.25.5-.38a14.2 14.2 0 0 0 11.56 0c.16.13.33.26.5.38-.64.39-1.32.72-2.02.99.37.75.8 1.46 1.29 2.12a19.85 19.85 0 0 0 6.03-3.04c.43-4.54-.73-8.5-3.26-12.03ZM9.7 14.1c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.69 1.75-1.56 1.75Zm4.6 0c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.68 1.75-1.56 1.75Z"/></svg>
+          </span>
+          <h3>Discord</h3>
+          <p>wispzjesus</p>
+          <button type="button" class="contact-card-action" onclick="copyDiscord()">Copy Username</button>
+        </div>
+
+        <!-- X (Twitter) -->
+        <div class="contact-card">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-6.9L4.8 22H1.7l8.1-9.3L1 2h7.1l4.9 6.3L18.9 2Zm-1.2 18h1.9L7.4 4H5.4l12.3 16Z"/></svg>
+          </span>
+          <h3>X (Twitter)</h3>
+          <p>@internetfrags</p>
+          <a class="contact-card-action" href="https://x.com/internetfrags" target="_blank" rel="noopener noreferrer">View Profile</a>
+        </div>
+
       </div>
-      <p style="margin-top:16px;font-size:12.5px;color:var(--text-muted);">
-        Tap Discord to copy the username · Either email works
-      </p>
 
       <div class="footer-meta">
         <span>&copy; <span id="year"></span> Renan Souza.</span>
@@ -1294,6 +1543,11 @@
     </footer>
 
   </main>
+
+  <!-- Floating WhatsApp button — fixed to the viewport, always visible -->
+  <a class="whatsapp-float" href="https://wa.me/5551992340825?text=Hi%20Renan!%0A%0AI%20found%20your%20portfolio%20and%20I%27m%20interested%20in%20working%20with%20you." target="_blank" rel="noopener noreferrer" aria-label="Message Renan on WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.28-1.38a9.9 9.9 0 0 0 4.71 1.2h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.07c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.12-1.8-.11-.42-.14-.95-.32-1.63-.62-2.87-1.24-4.74-4.12-4.88-4.31-.14-.19-1.17-1.55-1.17-2.96 0-1.4.74-2.09 1-2.38.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.17.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.48-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.61-.07.16-.19.7-.81.88-1.09.19-.28.37-.23.62-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.12.07.68-.17 1.36Z"/></svg>
+  </a>
 
   <!-- ==========================================================================
        FLOATING ELEMENTS: mouse-follow tooltip, fullscreen video modal, toast
