@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renan Souza — Video Editor for YouTube &amp; Shorts</title>
+<meta name="description" content="Renan Souza — video editor for YouTube, gaming VODs and Shorts, focused on clean, well-paced edits that hold attention.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ==========================================================================
+     1. DESIGN TOKENS
+     ========================================================================== */
+  :root{
+    --bg:            #0d0d11;
+    --bg-elevated:   #111118;
+    --card:          #16161f;
+    --card-border:   #26262f;
+    --text-primary:  #ffffff;
+    --text-secondary:#94a3b8;
+    --text-muted:    #5b5b6b;
+    --accent:        #7c3aed;
+    --accent-hover:  #9257ff;
+    --accent-soft:   rgba(124, 58, 237, 0.12);
+    --accent-green:  #22c55e;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --max-width: 1180px;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+  }
+
+  /* ==========================================================================
+     2. RESET & BASE
+     ========================================================================== */
+  *, *::before, *::after{ box-sizing: border-box; margin: 0; padding: 0; }
+  html{ scroll-behavior: smooth; }
+  body{
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img, svg{ display: block; max-width: 100%; }
+  a{ color: inherit; text-decoration: none; }
+  ul{ list-style: none; }
+  section{ position: relative; }
+
+  .container{
+    width: 100%;
+    max-width: var(--max-width);
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+
+  /* Ambient background glow */
+  body::before{
+    content: "";
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    width: 900px;
+    height: 900px;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  :focus-visible{ outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    html{ scroll-behavior: auto; }
+  }
+
+  /* ==========================================================================
+     3. TYPOGRAPHY UTILITIES
+     ========================================================================== */
+  .eyebrow{
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .eyebrow::before{ content: ""; width: 18px; height: 1px; background: var(--accent); }
+  h1, h2, h3{ font-weight: 800; letter-spacing: -0.02em; line-height: 1.08; }
+  .section-heading{ font-size: clamp(28px, 4vw, 42px); margin-top: 14px; }
+  .section-sub{ color: var(--text-secondary); font-size: 16px; max-width: 560px; margin-top: 12px; }
+  .section-head{ margin-bottom: 48px; }
+
+  /* ==========================================================================
+     4. HEADER & BUTTONS
+     ========================================================================== */
+  .site-header{
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px); background: rgba(13, 13, 17, 0.72);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .site-header .container{ display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .logo{ font-weight: 800; font-size: 16px; letter-spacing: 0.02em; }
+  .logo span{ color: var(--accent); }
+  .nav-links{ display: flex; gap: 32px; }
+  .nav-links a{ font-size: 14px; font-weight: 500; color: var(--text-secondary); transition: color 0.2s ease; }
+  .nav-links a:hover{ color: var(--text-primary); }
+  @media (max-width: 720px){ .nav-links{ display: none; } }
+
+  .btn{
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 13px 26px; border-radius: var(--radius-sm); font-size: 14.5px;
+    font-weight: 600; border: 1px solid transparent; cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    white-space: nowrap; font-family: inherit;
+  }
+  .btn:hover{ transform: translateY(-2px); }
+  .btn-primary{ background: var(--accent); color: #fff; }
+  .btn-primary:hover{ background: var(--accent-hover); }
+  .btn-ghost{ background: transparent; border-color: var(--card-border); color: var(--text-primary); }
+  .btn-ghost:hover{ border-color: var(--accent); }
+  .btn-sm{ padding: 10px 18px; font-size: 13px; }
+
+  /* ==========================================================================
+     5. HERO & ABOUT
+     ========================================================================== */
+  .hero{ padding: 110px 0 90px; text-align: center; }
+  .hero-name{ font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary); letter-spacing: 0.08em; margin-bottom: 22px; }
+  .hero-name b{ color: var(--text-primary); font-weight: 600; }
+  .hero-status{
+    display: inline-flex; align-items: center; gap: 7px; margin-left: 10px;
+    padding: 3px 10px 3px 8px; border: 1px solid var(--card-border);
+    border-radius: 100px; font-size: 11.5px; color: var(--accent-green);
+  }
+  .hero-status .dot{
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green);
+    box-shadow: 0 0 8px var(--accent-green); animation: pulse 2s infinite ease-in-out;
+  }
+  @keyframes pulse{ 0%, 100%{ opacity: 1; } 50%{ opacity: 0.35; } }
+  .hero h1{ font-size: clamp(38px, 6.4vw, 74px); max-width: 900px; margin-inline: auto; }
+  .hero h1 em{
+    font-style: normal; background: linear-gradient(90deg, var(--accent) 0%, #b794ff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p.subhead{ max-width: 620px; margin: 26px auto 0; color: var(--text-secondary); font-size: clamp(15px, 1.6vw, 18px); }
+  .hero-cta-row{ margin-top: 40px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  
+  .timeline-signature{ max-width: 640px; margin: 64px auto 0; position: relative; }
+  .timeline-track{ position: relative; height: 3px; background: var(--card-border); border-radius: 4px; overflow: visible; }
+  .timeline-progress{ position: absolute; top: 0; left: 0; height: 100%; width: 42%; background: var(--accent); border-radius: 4px; }
+  .timeline-playhead{
+    position: absolute; top: 50%; left: 42%; width: 13px; height: 13px;
+    background: var(--text-primary); border: 2px solid var(--accent);
+    border-radius: 50%; transform: translate(-50%, -50%); animation: scrub 6s ease-in-out infinite;
+  }
+  @keyframes scrub{ 0%, 100%{ left: 8%; } 50%{ left: 88%; } }
+  .timeline-ticks{ display: flex; justify-content: space-between; margin-top: 10px; }
+  .timeline-ticks span{ width: 1px; height: 6px; background: var(--text-muted); }
+  .timeline-meta{ display: flex; justify-content: space-between; margin-top: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+  #timecode{ color: var(--text-secondary); }
+
+  .hero-trust{
+    margin-top: 22px; font-size: 12.5px; color: var(--text-muted);
+    display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .hero-trust span:not(:last-child)::after{ content: "•"; margin-left: 8px; color: var(--card-border); }
+
+  .about{ padding: 30px 0 90px; }
+  .about-grid{ display: grid; grid-template-columns: 260px 1fr; gap: 56px; align-items: center; }
+  .about-photo-wrap{ position: relative; width: 100%; }
+  .about-photo-wrap::before{
+    content: ""; position: absolute; inset: -18px;
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 72%); z-index: -1;
+  }
+  .about-photo{
+    width: 100%; aspect-ratio: 1 / 1; object-fit: cover;
+    border-radius: var(--radius-lg); border: 1px solid var(--card-border);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+  }
+  .about-content .btn{ margin-top: 26px; }
+  @media (max-width: 720px){
+    .about-grid{ grid-template-columns: 1fr; text-align: center; }
+    .about-photo-wrap{ max-width: 220px; margin-inline: auto; }
+    .about-content .eyebrow{ justify-content: center; }
+    .about-content .section-sub{ margin-inline: auto; }
+  }
+
+  /* ==========================================================================
+     6. PORTFOLIO
+     ========================================================================== */
+  .portfolio{ padding: 90px 0 40px; }
+  .capability-tags{ display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .capability-tags span{
+    font-size: 12.5px; font-weight: 500; color: var(--text-secondary);
+    border: 1px solid var(--card-border); padding: 7px 14px; border-radius: 100px;
+  }
+
+  .results-highlight{
+    margin-bottom: 80px; padding: 40px;
+    background: linear-gradient(180deg, rgba(34,197,94,0.06) 0%, transparent 60%);
+    border: 1px solid var(--card-border); border-radius: var(--radius-lg);
+  }
+  .results-grid{ display: grid; grid-template-columns: 240px 1fr; gap: 44px; align-items: center; }
+  .results-video{ max-width: 240px; }
+  .results-heading{ font-size: clamp(21px, 2.6vw, 27px); font-weight: 800; letter-spacing: -0.01em; margin-top: 12px; }
+  .results-content .section-sub{ margin-top: 10px; max-width: 480px; }
+  .results-stats{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 26px; max-width: 480px; }
+  .stat-box{ background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 14px 8px; text-align: center; }
+  .stat-num{ display: block; font-family: var(--font-mono); font-size: 19px; font-weight: 700; color: var(--accent-green); }
+  .stat-label{ display: block; font-size: 9.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-secondary); margin-top: 4px; line-height: 1.3; }
+
+  .category-block{ margin-bottom: 72px; }
+  .category-block:last-child{ margin-bottom: 0; }
+  .category-title{ display: flex; align-items: baseline; gap: 12px; font-size: clamp(19px, 2.4vw, 24px); font-weight: 700; margin-bottom: 6px; }
+  .category-title .count{ font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--text-muted); }
+  .category-desc{ color: var(--text-secondary); font-size: 14.5px; margin-bottom: 26px; max-width: 560px; }
+  
+  .video-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+  .video-card{ display: flex; flex-direction: column; gap: 14px; }
+  
+  .video-embed{
+    position: relative; width: 100%; aspect-ratio: 16 / 9;
+    background: linear-gradient(155deg, #1a1a24 0%, #121218 100%);
+    border: 1px solid var(--card-border); border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+    transition: border-color 0.25s ease;
+  }
+  .video-embed.vertical{ aspect-ratio: 9 / 16; }
+  .video-embed:hover{ border-color: var(--accent); }
+  
+  .video-embed.thumbnail{ background-size: cover; background-position: center; cursor: pointer; }
+  .video-embed.thumbnail:focus-visible{ outline-offset: 4px; }
+  .thumb-dim{ position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,13,17,0.1) 0%, rgba(13,13,17,0.6) 100%); z-index: 1; }
+  .thumb-play{
+    position: absolute; z-index: 2; top: 14px; left: 14px; width: 40px; height: 40px;
+    border-radius: 50%; background: rgba(13,13,17,0.6); border: 1px solid rgba(255,255,255,0.28);
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .video-embed.thumbnail:hover .thumb-play{ transform: scale(1.08); background: var(--accent); }
+  
+  .hover-caption{
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 10px;
+    padding: 16px; background: linear-gradient(180deg, transparent 0%, rgba(13,13,17,0.92) 65%);
+    opacity: 0; transform: translateY(6px); transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .video-embed.thumbnail:hover .hover-caption{ opacity: 1; transform: translateY(0); }
+  .hover-caption p{ font-size: 12.5px; font-weight: 600; color: var(--text-primary); max-width: 70%; line-height: 1.4; }
+  .hover-caption a{
+    flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10.5px; font-weight: 500; color: var(--text-muted);
+    border: 1px solid var(--card-border); padding: 5px 10px; border-radius: 100px;
+    white-space: nowrap; transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .hover-caption a svg{ width: 10px; height: 10px; }
+  .hover-caption a:hover{ color: var(--text-primary); border-color: var(--accent); }
+  .video-caption{ font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; }
+  .video-caption b{ color: var(--text-primary); font-weight: 600; }
+
+  .premium-card{ position: relative; }
+  .premium-card .video-embed{ border-color: rgba(34, 197, 94, 0.45); animation: premiumPulse 2.6s ease-in-out infinite; }
+  @keyframes premiumPulse{ 0%, 100%{ box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.28); } 50%{ box-shadow: 0 0 26px 4px rgba(34, 197, 94, 0.28); } }
+  .premium-badge{
+    position: absolute; top: 10px; right: 10px; z-index: 4; display: flex; align-items: center; gap: 6px;
+    background: rgba(13,13,17,0.85); border: 1px solid var(--accent-green); color: var(--accent-green);
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 5px 10px; border-radius: 100px; backdrop-filter: blur(6px);
+  }
+  .premium-badge svg{ width: 11px; height: 11px; }
+
+  @media (max-width: 720px){
+    .results-highlight{ padding: 24px 18px; }
+    .results-grid{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 26px;
+      text-align: center;
+    }
+    .results-video{
+      width: 70%;
+      max-width: 210px;
+      flex-shrink: 0;
+    }
+    .results-content{ width: 100%; }
+    .results-content .eyebrow{ justify-content: center; }
+    .results-content .section-sub{ margin-inline: auto; }
+    .results-stats{
+      grid-template-columns: repeat(2, 1fr);
+      max-width: 320px;
+      margin-inline: auto;
+    }
+  }
+
+  /* ==========================================================================
+     6b. PROCESS & CTAs
+     ========================================================================== */
+  .process{ padding: 70px 0; }
+  .process-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 8px; }
+  .process-step{ background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 26px 24px; }
+  .process-step .step-num{ display: inline-block; font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 16px; }
+  .process-step h3{ font-size: 16.5px; margin-bottom: 8px; }
+  .process-step p{ font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; }
+  
+  .inline-cta{ display: flex; justify-content: center; margin-top: 48px; }
+
+  /* ==========================================================================
+     6c. TECHNIQUES & STYLES (Biblioteca em Expansão)
+     ========================================================================== */
+  .techniques{ padding: 30px 0 70px; }
+  .techniques-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+  .technique-tile{
+    display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md);
+    padding: 26px 22px; text-align: left; cursor: pointer; font-family: inherit; color: var(--text-primary);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .technique-tile:hover{ transform: translateY(-4px); border-color: var(--accent); }
+  .technique-tile-icon{
+    width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .technique-tile-icon svg{ width: 20px; height: 20px; }
+  .technique-tile h3{ font-size: 16px; font-weight: 700; }
+  .technique-tile p{ font-size: 12.5px; color: var(--text-secondary); }
+
+  .techniques-modal{
+    position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+    padding: 50px 20px; background: rgba(5,5,8,0.94); backdrop-filter: blur(12px);
+    opacity: 0; visibility: hidden; transition: opacity 0.25s ease;
+  }
+  .techniques-modal.open{ opacity: 1; visibility: visible; }
+  .techniques-modal-inner{
+    position: relative; width: 100%; max-width: 720px; max-height: 84vh;
+    background: var(--bg-elevated); border: 1px solid var(--card-border); border-radius: var(--radius-lg);
+    display: flex; flex-direction: column; box-shadow: 0 30px 90px rgba(0,0,0,0.65);
+  }
+  .techniques-modal-header{
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 22px 26px; border-bottom: 1px solid var(--card-border); flex-shrink: 0;
+  }
+  .techniques-modal-header h3{ font-size: 18px; font-weight: 700; }
+  .techniques-modal-close{
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.06);
+    border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center;
+    color: #fff; cursor: pointer; flex-shrink: 0; transition: border-color 0.2s ease, transform 0.25s ease, background 0.2s ease;
+  }
+  .techniques-modal-close:hover{ border-color: var(--accent); background: var(--accent-soft); transform: rotate(90deg); }
+  .techniques-modal-body{ padding: 22px 26px 28px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+  
+  .technique-entry{ display: grid; grid-template-columns: 130px 1fr; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--card-border); }
+  .technique-entry:last-child{ border-bottom: none; padding-bottom: 0; }
+  .technique-thumb{
+    width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-sm);
+    background: linear-gradient(155deg, #1a1a24 0%, #121218 100%);
+    border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; text-align: center; padding: 10px;
+  }
+  .technique-entry h4{ font-size: 14.5px; font-weight: 700; margin-bottom: 6px; }
+  .technique-entry p{ font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  /* --- Order Modal Contact Buttons (Minimalist style) --- */
+  .modal-contact-btn{
+    display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-sm);
+    color: var(--text-primary); font-weight: 600; font-size: 14px; transition: all 0.2s ease;
+    cursor: pointer; width: 100%; text-align: left; font-family: inherit; text-decoration: none;
+  }
+  .modal-contact-btn:hover{ border-color: var(--accent); background: var(--accent-soft); transform: translateY(-2px); }
+  .modal-contact-btn.highlight{ border-color: #25d366; }
+  .modal-contact-btn.highlight:hover{ background: rgba(37,211,102,0.1); }
+  .modal-contact-btn .icon-wrap{
+    width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .modal-contact-btn.highlight .icon-wrap{ background: rgba(37,211,102,0.16); color: #25d366; }
+  .modal-contact-btn svg{ width: 16px; height: 16px; }
+  .modal-contact-btn .details{ display: flex; flex-direction: column; }
+  .modal-contact-btn .subtext{ font-size: 11.5px; color: var(--text-secondary); font-weight: 500; margin-top: 2px; }
+
+  /* ==========================================================================
+     7. PRICING SECTION
+     ========================================================================== */
+  .pricing{ padding: 70px 0; }
+  .pricing-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .price-card{
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg);
+    padding: 36px 30px; display: flex; flex-direction: column; transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+  .price-card:hover{ transform: translateY(-6px); border-color: rgba(124, 58, 237, 0.45); }
+  .price-card.featured{ border-color: var(--accent); background: linear-gradient(180deg, rgba(124,58,237,0.08) 0%, var(--card) 40%); position: relative; }
+  .price-card .badge{
+    position: absolute; top: -13px; left: 30px; background: var(--accent); color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 5px 12px; border-radius: 100px;
+  }
+  .price-card h3{ font-size: 20px; margin-bottom: 6px; }
+  .price-card .price-tag-desc{ font-size: 13.5px; color: var(--text-secondary); margin-bottom: 22px; }
+  .price-card .price{ font-size: 40px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .price-card .price span{ font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+  .price-card .unit{ font-size: 13px; color: var(--text-muted); margin-bottom: 26px; }
+  .price-card ul{ display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; flex-grow: 1; }
+  .price-card li{ display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-secondary); }
+  .price-card li svg{ flex-shrink: 0; margin-top: 3px; color: var(--accent-green); }
+  .price-card .btn{ width: 100%; }
+
+  /* ==========================================================================
+     7b. FAQ
+     ========================================================================== */
+  .faq{ padding: 70px 0; }
+  .faq-list{ display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+  .faq-item{ background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); overflow: hidden; }
+  .faq-item summary{
+    list-style: none; cursor: pointer; padding: 20px 22px; display: flex; align-items: center;
+    justify-content: space-between; gap: 16px; font-weight: 600; font-size: 14.5px; color: var(--text-primary);
+  }
+  .faq-item summary::-webkit-details-marker{ display: none; }
+  .faq-icon{
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--card-border);
+    display: flex; align-items: center; justify-content: center; font-size: 15px; line-height: 1;
+    color: var(--text-secondary); transition: transform 0.25s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .faq-item[open] .faq-icon{ transform: rotate(45deg); border-color: var(--accent); color: var(--accent); }
+  .faq-answer{ padding: 0 22px 22px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.7; }
+
+  /* ==========================================================================
+     8. FOOTER / CONTACT
+     ========================================================================== */
+  .contact-footer{ padding: 100px 0 50px; text-align: center; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 40px; }
+  .contact-footer h2{ font-size: clamp(30px, 5vw, 48px); max-width: 640px; margin-inline: auto; }
+  .contact-footer .section-sub{ margin-inline: auto; }
+  .contact-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-top: 48px; text-align: left; }
+  .contact-card{ background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 24px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s ease, border-color 0.2s ease; }
+  .contact-card:hover{ transform: translateY(-4px); border-color: var(--accent); }
+  .contact-card.highlight{ border-color: #25d366; background: linear-gradient(180deg, rgba(37,211,102,0.09) 0%, var(--card) 45%); }
+  .contact-card-icon{ width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent); margin-bottom: 4px; }
+  .contact-card-icon svg{ width: 18px; height: 18px; }
+  .contact-card.highlight .contact-card-icon{ background: rgba(37,211,102,0.16); color: #25d366; }
+  .contact-card h3{ font-size: 15px; font-weight: 700; }
+  .contact-card p{ font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+  .contact-card p a{ color: var(--text-secondary); text-decoration: underline; text-underline-offset: 2px; }
+  .contact-card p a:hover{ color: var(--text-primary); }
+  .contact-card-action{
+    margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font: inherit;
+    font-size: 13px; font-weight: 600; color: var(--text-primary); background: transparent; border: 1px solid var(--card-border);
+    padding: 9px 16px; border-radius: 100px; cursor: pointer; transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .contact-card-action:hover{ border-color: var(--accent); background: var(--accent-soft); }
+  .contact-card.highlight .contact-card-action{ border-color: #25d366; }
+  .contact-card.highlight .contact-card-action:hover{ background: rgba(37,211,102,0.14); }
+
+  .whatsapp-float{
+    position: fixed; bottom: 24px; right: 24px; z-index: 900; width: 58px; height: 58px; border-radius: 50%;
+    background: #25d366; color: #fff; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45); transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .whatsapp-float::after{
+    content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #25d366; animation: waPulse 2.4s ease-out infinite;
+  }
+  @keyframes waPulse{ 0%{ transform: scale(1); opacity: 0.7; } 100%{ transform: scale(1.7); opacity: 0; } }
+  .whatsapp-float:hover{ transform: scale(1.08); box-shadow: 0 14px 36px rgba(0,0,0,0.55); }
+  .whatsapp-float svg{ width: 29px; height: 29px; }
+
+  .footer-meta{ margin-top: 70px; display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+
+  .video-modal{
+    position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+    padding: 70px 20px; background: rgba(5,5,8,0.94); backdrop-filter: blur(12px); opacity: 0; visibility: hidden; transition: opacity 0.25s ease;
+  }
+  .video-modal.open{ opacity: 1; visibility: visible; }
+  .video-modal-inner{ position: relative; width: 100%; max-width: 900px; }
+  .video-modal-inner.vertical{ max-width: 380px; }
+  .video-modal-frame-wrap{
+    position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: var(--radius-md);
+    overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,0.65);
+  }
+  .video-modal-inner.vertical .video-modal-frame-wrap{ aspect-ratio: 9 / 16; }
+  .video-modal-frame-wrap iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .video-modal-close{
+    position: absolute; top: -54px; right: 0; width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); display: flex; align-items: center;
+    justify-content: center; color: #fff; cursor: pointer; transition: border-color 0.2s ease, transform 0.25s ease, background 0.2s ease;
+  }
+  .video-modal-close:hover{ border-color: var(--accent); background: var(--accent-soft); transform: rotate(90deg); }
+
+  .copy-toast{
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(16px);
+    background: var(--accent-green); color: #0d0d11; font-weight: 700; font-size: 13px; padding: 11px 20px;
+    border-radius: 100px; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 2000;
+  }
+  .copy-toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  #mouse-tooltip{
+    position: fixed; z-index: 200; pointer-events: none; width: 230px; background: var(--card); border: 1px solid var(--accent-green);
+    border-radius: var(--radius-sm); padding: 14px 16px; font-size: 12.5px; line-height: 1.5; color: var(--text-secondary);
+    opacity: 0; transform: translate(18px, -110%) scale(0.97); transition: opacity 0.15s ease; box-shadow: 0 16px 34px rgba(0,0,0,0.55);
+  }
+  #mouse-tooltip.visible{ opacity: 1; }
+  #mouse-tooltip strong{ display: block; color: var(--text-primary); font-size: 13px; margin-bottom: 8px; }
+  #mouse-tooltip .stat-row{ display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; }
+  #mouse-tooltip .stat-row span:last-child{ color: var(--accent-green); font-weight: 700; font-family: var(--font-mono); }
+
+  @media (max-width: 560px){
+    .hero{ padding: 84px 0 64px; }
+    .hero-cta-row{ flex-direction: column; align-items: stretch; }
+    .timeline-signature{ display: none; }
+    .contact-links{ flex-direction: column; }
+    .price-card{ padding: 30px 24px; }
+    .video-modal{ padding: 60px 16px; }
+    .video-modal-close{ top: -46px; }
+    .whatsapp-float{ width: 52px; height: 52px; bottom: 18px; right: 18px; }
+    .whatsapp-float svg{ width: 25px; height: 25px; }
+    .technique-entry{ grid-template-columns: 1fr; }
+    #mouse-tooltip{ display: none; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="#top" class="logo">RENAN <span>SOUZA</span></a>
+      <nav class="nav-links" aria-label="Section navigation">
+        <a href="#about">About</a>
+        <a href="#portfolio">Work</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a href="#contact" class="btn btn-primary btn-sm">Let's Work Together</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <section class="hero container">
+      <p class="hero-name">
+        <b>Renan Souza</b> — Video Editor
+        <span class="hero-status"><span class="dot"></span>Available for new projects</span>
+      </p>
+
+      <h1>Well-Paced Video Editing for <em>YouTube &amp; Shorts</em></h1>
+
+      <p class="subhead">
+        I edit raw streams and long recordings into clean, well-paced videos that
+        hold attention — without losing what made the original moment good.
+      </p>
+
+      <div class="hero-cta-row">
+        <a href="#contact" class="btn btn-primary">Let's Work Together</a>
+        <a href="#portfolio" class="btn btn-ghost">View Portfolio</a>
+      </div>
+
+      <p class="hero-trust">
+        <span>Reply within 24 hours</span>
+        <span>No long-term contract</span>
+        <span>Revisions included</span>
+      </p>
+
+      <div class="timeline-signature" aria-hidden="true">
+        <div class="timeline-track">
+          <div class="timeline-progress"></div>
+          <div class="timeline-playhead"></div>
+        </div>
+        <div class="timeline-ticks">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="timeline-meta">
+          <span id="timecode">00:00:00:00</span>
+          <span>RETENTION_CUT_V3.PROJ</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="about container" id="about">
+      <div class="about-grid">
+        <div class="about-photo-wrap">
+          <img src="minhafoto.png" alt="Renan Souza, video editor" class="about-photo" loading="lazy">
+        </div>
+        <div class="about-content">
+          <span class="eyebrow">About Me</span>
+          <h2 class="section-heading">Hi, I'm Renan.</h2>
+          <p class="section-sub" style="max-width:520px;">
+            I'm passionate about editing videos that people actually enjoy watching.
+            I specialize in turning long recordings into fast-paced, engaging content
+            built around retention.
+          </p>
+          <p class="section-sub" style="max-width:520px;">
+            Every project is edited with attention to pacing, storytelling, and the
+            small details that make viewers stay until the end.
+          </p>
+          <a href="#contact" class="btn btn-primary">Let's Work Together</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="portfolio container" id="portfolio">
+      <div class="section-head">
+        <span class="eyebrow">Portfolio</span>
+        <h2 class="section-heading">Selected Work</h2>
+        <p class="section-sub">
+          A sample of real edit styles. The same retention-first process adapts
+          across formats, from gaming to lifestyle, education and brand work.
+        </p>
+        <ul class="capability-tags" aria-label="Content types I edit">
+          <li><span>Gaming &amp; Streaming</span></li>
+          <li><span>Vlogs &amp; Lifestyle</span></li>
+          <li><span>Tutorials &amp; How-To</span></li>
+          <li><span>Podcasts &amp; Interviews</span></li>
+          <li><span>Brand &amp; Sponsored Content</span></li>
+          <li><span>Short-Form / Viral Cuts</span></li>
+        </ul>
+      </div>
+
+      <div class="results-highlight" id="results">
+        <div class="results-grid">
+          <div class="video-card premium-card results-video">
+            <div class="video-embed vertical thumbnail"
+                 style="background-image:url('https://img.youtube.com/vi/kzEErUWg1U0/hqdefault.jpg');"
+                 onclick="openVideoModal('kzEErUWg1U0','9:16')"
+                 onkeydown="if(event.key==='Enter')openVideoModal('kzEErUWg1U0','9:16')"
+                 onmouseenter="showTooltip(event)" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()"
+                 role="button" tabindex="0" aria-label="Play video fullscreen. First video on this channel, brought 717 subscribers.">
+              <span class="premium-badge">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 10l-5.2 4.3L17.4 21 12 17.3 6.6 21l1.6-6.7L3 10l6.6-1.4z"/></svg>
+                Verified Results
+              </span>
+              <div class="thumb-dim"></div>
+              <div class="thumb-play">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-content">
+            <span class="eyebrow">Real Results</span>
+            <h3 class="results-heading">This Was My First Video On This Channel</h3>
+            <p class="section-sub">
+              One upload. Zero paid promotion. Here's exactly what it did — the
+              same retention-first process goes into every edit I deliver.
+            </p>
+            <div class="results-stats">
+              <div class="stat-box"><span class="stat-num">+717</span><span class="stat-label">New Subscribers</span></div>
+              <div class="stat-box"><span class="stat-num">159.3K</span><span class="stat-label">Views</span></div>
+              <div class="stat-box"><span class="stat-num">78.3%</span><span class="stat-label">Retention</span></div>
+              <div class="stat-box"><span class="stat-num">1:01</span><span class="stat-label">Avg. Watch Time</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-block">
+        <h3 class="category-title">Gaming &amp; Live Stream VODs <span class="count">01</span></h3>
+        <p class="category-desc">
+          Full-length VOD edits engineered to hold attention across long runtimes.
+        </p>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-embed thumbnail"
+                 style="background-image:url('https://drive.google.com/thumbnail?id=1WFEIk3lFCh0XtP5rXD7OpUAii4EjzIsG&amp;sz=w1000'), linear-gradient(155deg, #1a1a24 0%, #121218 100%);"
+                 onclick="openVideoModal('1WFEIk3lFCh0XtP5rXD7OpUAii4EjzIsG','16:9','drive')"
+                 onkeydown="if(event.key==='Enter')openVideoModal('1WFEIk3lFCh0XtP5rXD7OpUAii4EjzIsG','16:9','drive')"
+                 role="button" tabindex="0" aria-label="Play video fullscreen">
+              <div class="thumb-dim"></div>
+              <div class="thumb-play">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+              <div class="hover-caption">
+                <p>One of the video styles I can deliver.</p>
+                <a href="https://www.youtube.com/watch?v=kevZNeRyVlg&amp;t=3092s" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+                  Raw footage
+                </a>
+              </div>
+            </div>
+            <p class="video-caption">
+              <b>Case Study:</b> A pass at a 3-hour raw stream, tightened for
+              pacing. Focused on comedic timing, custom HUD/scoreboards, and
+              cuts that keep the energy up.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="process container">
+      <div class="section-head">
+        <span class="eyebrow">Process</span>
+        <h2 class="section-heading">How We'll Work Together</h2>
+        <p class="section-sub">Three steps, start to finish. No lengthy onboarding.</p>
+      </div>
+      <div class="process-grid">
+        <div class="process-step">
+          <span class="step-num">01</span>
+          <h3>Send your footage</h3>
+          <p>Share a raw stream, VOD, or clip via Google Drive, WeTransfer, or a direct link — along with the tone you're going for.</p>
+        </div>
+        <div class="process-step">
+          <span class="step-num">02</span>
+          <h3>I edit for retention</h3>
+          <p>Pacing, captions, sound design, and hooks are built around keeping viewers watching, not just cutting dead air.</p>
+        </div>
+        <div class="process-step">
+          <span class="step-num">03</span>
+          <h3>Review &amp; approve</h3>
+          <p>You get a first cut to review, request changes, and approve — then the final file is delivered ready to publish.</p>
+        </div>
+      </div>
+      <div class="inline-cta">
+        <a href="#contact" class="btn btn-primary">Let's Work Together</a>
+      </div>
+    </section>
+
+    <section class="techniques container">
+      <div class="section-head">
+        <span class="eyebrow">Skills</span>
+        <h2 class="section-heading">Edit Styles &amp; Techniques</h2>
+        <p class="section-sub">
+          Tap a category to see the specific techniques I use — and the reasoning
+          behind each one. (Visual breakdowns in active development).
+        </p>
+      </div>
+
+      <div class="techniques-grid">
+        <button type="button" class="technique-tile" onclick="openTechniquesModal('hook')">
+          <span class="technique-tile-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+          </span>
+          <h3>Hooks</h3>
+          <p>The first seconds or opening minute</p>
+        </button>
+
+        <button type="button" class="technique-tile" onclick="openTechniquesModal('body')">
+          <span class="technique-tile-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
+          </span>
+          <h3>Body &amp; Pacing</h3>
+          <p>B-roll, captions, rhythm</p>
+        </button>
+
+        <button type="button" class="technique-tile" onclick="openTechniquesModal('cta')">
+          <span class="technique-tile-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 21 3l-6 18-4-8-8-2Z"/></svg>
+          </span>
+          <h3>Call-To-Action</h3>
+          <p>Getting the subscribe</p>
+        </button>
+
+        <button type="button" class="technique-tile" onclick="openTechniquesModal('transitions')">
+          <span class="technique-tile-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3 21 7l-4 4M21 7H9a4 4 0 0 0-4 4v1M7 21 3 17l4-4M3 17h12a4 4 0 0 0 4-4v-1"/></svg>
+          </span>
+          <h3>Transitions</h3>
+          <p>Cuts that feel seamless</p>
+        </button>
+
+        <button type="button" class="technique-tile" onclick="openTechniquesModal('effects')">
+          <span class="technique-tile-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2L12 2Z"/></svg>
+          </span>
+          <h3>Special Effects</h3>
+          <p>Sound design, VFX, grading</p>
+        </button>
+
+        <button type="button" class="technique-tile" onclick="openTechniquesModal('retention')">
+          <span class="technique-tile-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+          </span>
+          <h3>Retention Techniques</h3>
+          <p>Advanced, data-driven methods</p>
+        </button>
+      </div>
+      
+      <div class="inline-cta">
+        <a href="#contact" class="btn btn-ghost">Discuss a Project</a>
+      </div>
+    </section>
+
+    <section class="pricing container" id="pricing">
+      <div class="section-head">
+        <span class="eyebrow">Rates</span>
+        <h2 class="section-heading">Pricing &amp; Packages</h2>
+        <p class="section-sub">
+          Straightforward packages built for creators who need consistent,
+          fast turnaround edits. Custom retainers available on request.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="price-card">
+          <h3>Short Form Package</h3>
+          <p class="price-tag-desc">For TikTok, Reels &amp; YouTube Shorts</p>
+          <div class="price">$45<span>/ video</span></div>
+          <p class="unit">Billed per delivered clip</p>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Title &amp; hook research</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Dynamic animated subtitles</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Sound effects &amp; transitions</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Color grading</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>24–48h turnaround</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Up to 1 round of revisions included</li>
+          </ul>
+          <button type="button" class="btn btn-ghost" onclick="openOrderModal('Short Form Package')">Order Package</button>
+        </div>
+
+        <div class="price-card featured">
+          <span class="badge">Most Requested</span>
+          <h3>Long Form Video (VOD / YouTube)</h3>
+          <p class="price-tag-desc">Full stream &amp; VOD retention edits</p>
+          <div class="price">$180<span>/ video</span></div>
+          <p class="unit">15–20 min final cut • from max 2h raw VOD</p>
+          <p class="price-note">(+$30 per additional hour of raw footage)</p>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Full VOD scraping &amp; sync</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Custom pacing &amp; story structure</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Visual assets &amp; overlays</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Optimized for viewer retention</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>3–5 days turnaround</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Up to 2 rounds of revisions included</li>
+          </ul>
+          <button type="button" class="btn btn-primary" onclick="openOrderModal('Long Form Video')">Order Package</button>
+        </div>
+
+        <div class="price-card">
+          <h3>Channel Management</h3>
+          <p class="price-tag-desc">Weekly / monthly retainer for full channels</p>
+          <div class="price">Custom<span>/ quote</span></div>
+          <p class="unit">Volume-based pricing</p>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Fixed monthly retainer packages</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Content repurposing (1 long-form + multiple shorts)</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Extended raw VODs &amp; longer final runtime</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Express 24–48h turnaround available</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Flexible number of revision rounds</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Specialized visual effects &amp; pacing</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Direct 1-on-1 Discord support line</li>
+          </ul>
+          <button type="button" class="btn btn-ghost" onclick="openOrderModal('Channel Management')">Order Package</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq container" id="faq">
+      <div class="section-head">
+        <span class="eyebrow">FAQ</span>
+        <h2 class="section-heading">Common Questions</h2>
+        <p class="section-sub">Straight answers to the things people usually ask before working together.</p>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Will I be charged for the free 60-second video you offered me?<span class="faq-icon">+</span></summary>
+          <div class="faq-answer">
+            <p>No. If I reached out to you with a free 60-second sample edit, it's completely free — no strings attached, no invoice waiting afterward. If you like the result, we can talk about ongoing work together. If it's not for you, no hard feelings — the clip is still yours to keep.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What if I need more than the included revisions?<span class="faq-icon">+</span></summary>
+          <div class="faq-answer">
+            <p>Extra revisions are $10 each and add one additional day to the final delivery, on top of the rounds already included in your package. If you need a faster turnaround on an extra round, that can be arranged for a higher fee — just tell me upfront and I'll confirm if it's possible.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How do we handle file sharing and communication?<span class="faq-icon">+</span></summary>
+          <div class="faq-answer">
+            <p>Footage comes over however is easiest for you — Google Drive, WeTransfer, or a direct link. For day-to-day communication, WhatsApp is the fastest (usually under 6 hours) and Discord works too (within 24 hours). Pick whichever you're already comfortable with.</p>
+            <a href="#contact" class="btn btn-ghost btn-sm" style="margin-top:14px;">View Contact Options</a>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What happens if you miss a deadline?<span class="faq-icon">+</span></summary>
+          <div class="faq-answer">
+            <p>If a delay is coming, I'll flag it before the deadline, not after. But if a deadline is missed without warning, your next video comes with a discount reflecting how late the delivery was and how urgent your content was — up to 50% off in the most extreme cases. You shouldn't have to chase me for updates.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I request a specific style or send reference videos?<span class="faq-icon">+</span></summary>
+          <div class="faq-answer">
+            <p>Absolutely — send me 2–3 reference videos and I'll match the pacing, tone, and structure to your brand instead of applying a generic template. Your channel should still feel like your channel.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Will my raw or unreleased footage stay private?<span class="faq-icon">+</span></summary>
+          <div class="faq-answer">
+            <p>Yes. Footage and streams are used only for the edit you hired me for — never reused, reposted, or shown publicly without your permission. If I'd like to feature a finished piece in my portfolio, I'll ask first.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Will you sign an NDA?<span class="faq-icon">+</span></summary>
+          <div class="faq-answer">
+            <p>Yes, no problem. If you're working with unreleased content, an unannounced sponsorship, or anything sensitive, I'm happy to sign an NDA before you send anything over.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How does payment work?<span class="faq-icon">+</span></summary>
+          <div class="faq-answer">
+            <p>For new clients, the usual structure is 50% upfront to start the edit and 50% on delivery of the approved final cut. For ongoing retainer work, billing is arranged monthly. If that doesn't fit your situation, just ask — it can be adjusted.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Who owns the final video and project files?<span class="faq-icon">+</span></summary>
+          <div class="faq-answer">
+            <p>You do. The final delivered video is yours to publish, monetize, and use however you'd like. Raw project files can be shared on request as well.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <footer class="contact-footer container" id="contact">
+      <span class="eyebrow" style="justify-content:center;">Get In Touch</span>
+      <h2>Ready to scale your retention and views?</h2>
+      <p class="section-sub">
+        Send over your raw footage or channel details and I'll reply within
+        24 hours with a turnaround estimate.
+      </p>
+
+      <div class="contact-grid">
+        <div class="contact-card highlight">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.28-1.38a9.9 9.9 0 0 0 4.71 1.2h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.07c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.12-1.8-.11-.42-.14-.95-.32-1.63-.62-2.87-1.24-4.74-4.12-4.88-4.31-.14-.19-1.17-1.55-1.17-2.96 0-1.4.74-2.09 1-2.38.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.17.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.48-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.61-.07.16-.19.7-.81.88-1.09.19-.28.37-.23.62-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.12.07.68-.17 1.36Z"/></svg>
+          </span>
+          <h3>WhatsApp</h3>
+          <p>Fastest way to reach me — usually replies within a few hours.</p>
+          <a class="contact-card-action" href="https://wa.me/5551992340825?text=Hi%20Renan!%0A%0AI%20found%20your%20portfolio%20and%20I%27m%20interested%20in%20working%20with%20you." target="_blank" rel="noopener noreferrer">
+            Message on WhatsApp
+          </a>
+        </div>
+
+        <div class="contact-card">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          </span>
+          <h3>Email</h3>
+          <p>
+            <a href="mailto:renansouzadeoliveira08@gmail.com">renansouzadeoliveira08@gmail.com</a><br>
+            <a href="mailto:justrenan777@gmail.com">justrenan777@gmail.com</a>
+          </p>
+        </div>
+
+        <div class="contact-card">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.2.36-.42.85-.573 1.24a18.27 18.27 0 0 0-5.97 0A12.6 12.6 0 0 0 9.442 3a19.74 19.74 0 0 0-3.76 1.37C2.79 8.48 2.06 12.47 2.42 16.4a19.9 19.9 0 0 0 6.03 3.04c.49-.66.92-1.37 1.29-2.12-.71-.27-1.38-.6-2.02-.99.17-.12.34-.25.5-.38a14.2 14.2 0 0 0 11.56 0c.16.13.33.26.5.38-.64.39-1.32.72-2.02.99.37.75.8 1.46 1.29 2.12a19.85 19.85 0 0 0 6.03-3.04c.43-4.54-.73-8.5-3.26-12.03ZM9.7 14.1c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.69 1.75-1.56 1.75Zm4.6 0c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.68 1.75-1.56 1.75Z"/></svg>
+          </span>
+          <h3>Discord</h3>
+          <p>wispzjesus</p>
+          <button type="button" class="contact-card-action" onclick="copyDiscord()">Copy Username</button>
+        </div>
+
+        <div class="contact-card">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-6.9L4.8 22H1.7l8.1-9.3L1 2h7.1l4.9 6.3L18.9 2Zm-1.2 18h1.9L7.4 4H5.4l12.3 16Z"/></svg>
+          </span>
+          <h3>X (Twitter)</h3>
+          <p>@thewispz</p>
+          <a class="contact-card-action" href="https://x.com/thewispz" target="_blank" rel="noopener noreferrer">View Profile</a>
+        </div>
+      </div>
+
+      <div class="footer-meta">
+        <span>&copy; <span id="year"></span> Renan Souza.</span>
+        <span>All rights reserved.</span>
+      </div>
+    </footer>
+  </main>
+
+  <a class="whatsapp-float" href="https://wa.me/5551992340825?text=Hi%20Renan!%0A%0AI%20found%20your%20portfolio%20and%20I%27m%20interested%20in%20working%20with%20you." target="_blank" rel="noopener noreferrer" aria-label="Message Renan on WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.28-1.38a9.9 9.9 0 0 0 4.71 1.2h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.07c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.12-1.8-.11-.42-.14-.95-.32-1.63-.62-2.87-1.24-4.74-4.12-4.88-4.31-.14-.19-1.17-1.55-1.17-2.96 0-1.4.74-2.09 1-2.38.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.17.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.48-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.61-.07.16-.19.7-.81.88-1.09.19-.28.37-.23.62-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.12.07.68-.17 1.36Z"/></svg>
+  </a>
+
+  <div id="mouse-tooltip" aria-hidden="true">
+    <strong>First video on this channel</strong>
+    <div class="stat-row"><span>New subscribers</span><span>+717</span></div>
+    <div class="stat-row"><span>Views</span><span>159.3K</span></div>
+    <div class="stat-row"><span>Retention</span><span>78.3%</span></div>
+    <div class="stat-row"><span>Avg. view duration</span><span>1:01</span></div>
+  </div>
+
+  <div class="video-modal" id="video-modal" onclick="if(event.target===this)closeVideoModal()">
+    <div class="video-modal-inner" id="video-modal-inner">
+      <button class="video-modal-close" type="button" onclick="closeVideoModal()" aria-label="Close video">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+      </button>
+      <div class="video-modal-frame-wrap" id="video-modal-frame-wrap"></div>
+    </div>
+  </div>
+
+  <div class="techniques-modal" id="techniques-modal" onclick="if(event.target===this)closeTechniquesModal()">
+    <div class="techniques-modal-inner">
+      <div class="techniques-modal-header">
+        <h3 id="techniques-modal-title">Category</h3>
+        <button class="techniques-modal-close" type="button" onclick="closeTechniquesModal()" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+        </button>
+      </div>
+      <div class="techniques-modal-body" id="techniques-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Minimalist Order Modal -->
+  <div class="techniques-modal" id="order-modal" onclick="if(event.target===this)closeOrderModal()">
+    <div class="techniques-modal-inner" style="max-width: 420px;">
+      <div class="techniques-modal-header">
+        <h3 id="order-modal-title">Order Package</h3>
+        <button class="techniques-modal-close" type="button" onclick="closeOrderModal()" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+        </button>
+      </div>
+      <div class="techniques-modal-body" style="gap: 12px; padding-bottom: 26px;">
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 4px;">Choose how you'd like to reach out to start the process:</p>
+        
+        <a id="modal-wa-link" href="#" target="_blank" rel="noopener noreferrer" class="modal-contact-btn highlight">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.28-1.38a9.9 9.9 0 0 0 4.71 1.2h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.07c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.12-1.8-.11-.42-.14-.95-.32-1.63-.62-2.87-1.24-4.74-4.12-4.88-4.31-.14-.19-1.17-1.55-1.17-2.96 0-1.4.74-2.09 1-2.38.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.17.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.48-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.61-.07.16-.19.7-.81.88-1.09.19-.28.37-.23.62-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.12.07.68-.17 1.36Z"/></svg>
+          </div>
+          <div class="details">
+            WhatsApp
+            <span class="subtext">Fastest reply (Usually &lt; 6h)</span>
+          </div>
+        </a>
+
+        <button type="button" onclick="copyDiscord(); closeOrderModal();" class="modal-contact-btn">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.2.36-.42.85-.573 1.24a18.27 18.27 0 0 0-5.97 0A12.6 12.6 0 0 0 9.442 3a19.74 19.74 0 0 0-3.76 1.37C2.79 8.48 2.06 12.47 2.42 16.4a19.9 19.9 0 0 0 6.03 3.04c.49-.66.92-1.37 1.29-2.12-.71-.27-1.38-.6-2.02-.99.17-.12.34-.25.5-.38a14.2 14.2 0 0 0 11.56 0c.16.13.33.26.5.38-.64.39-1.32.72-2.02.99.37.75.8 1.46 1.29 2.12a19.85 19.85 0 0 0 6.03-3.04c.43-4.54-.73-8.5-3.26-12.03ZM9.7 14.1c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.69 1.75-1.56 1.75Zm4.6 0c-.86 0-1.56-.79-1.56-1.75s.68-1.76 1.56-1.76 1.58.8 1.56 1.76c0 .96-.68 1.75-1.56 1.75Z"/></svg>
+          </div>
+          <div class="details">
+            Discord
+            <span class="subtext">Copies username: wispzjesus</span>
+          </div>
+        </button>
+
+        <a id="modal-email-link" href="#" class="modal-contact-btn">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          </div>
+          <div class="details">
+            Email
+            <span class="subtext">renansouzadeoliveira08@gmail.com</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="copy-toast" id="copy-toast"></div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const timecodeEl = document.getElementById('timecode');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (timecodeEl && !prefersReducedMotion) {
+      let frame = 0;
+      const fps = 24;
+      function formatTimecode(totalFrames) {
+        const f = totalFrames % fps;
+        const totalSeconds = Math.floor(totalFrames / fps);
+        const s = totalSeconds % 60;
+        const totalMinutes = Math.floor(totalSeconds / 60);
+        const m = totalMinutes % 60;
+        const h = Math.floor(totalMinutes / 60);
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${pad(h)}:${pad(m)}:${pad(s)}:${pad(f)}`;
+      }
+      setInterval(() => {
+        frame = (frame + 1) % (fps * 60 * 60);
+        timecodeEl.textContent = formatTimecode(frame);
+      }, 1000 / fps);
+    }
+
+    function openVideoModal(videoId, ratio, platform) {
+      const modal = document.getElementById('video-modal');
+      const inner = document.getElementById('video-modal-inner');
+      const wrap = document.getElementById('video-modal-frame-wrap');
+
+      inner.classList.toggle('vertical', ratio === '9:16');
+      const src = platform === 'drive'
+        ? `https://drive.google.com/file/d/${videoId}/preview`
+        : `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+
+      wrap.innerHTML = `<iframe src="${src}" title="Video player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeVideoModal() {
+      const modal = document.getElementById('video-modal');
+      const wrap = document.getElementById('video-modal-frame-wrap');
+      modal.classList.remove('open');
+      wrap.innerHTML = ''; 
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeVideoModal();
+        closeTechniquesModal();
+        closeOrderModal();
+      }
+    });
+
+    const techniquesData = {
+      hook: {
+        title: 'Hooks — The First Seconds',
+        items: [
+          { title: 'Cold Open', why: "Start mid-action instead of with an intro or logo. Viewers decide whether to keep watching within the first few seconds — showing the most exciting moment first removes the 'boring setup' that gives them a reason to leave." },
+          { title: 'Verbal Pattern Interrupt', why: 'Open with an unexpected line or question instead of a greeting. It breaks the autopilot scrolling behavior and makes people consciously register what they just heard.' },
+          { title: 'Visual Pattern Interrupt', why: 'A fast zoom, quick cut, or bold on-screen text in the very first frame. Motion and contrast catch the eye faster than a static opening shot, which is easy to scroll past.' },
+          { title: 'Curiosity Gap Open', why: '"Watch what happens at 0:47" style teases. This uses the Zeigarnik effect — the brain remembers and wants to resolve unfinished information more than it cares about finished information.' },
+          { title: 'Text Hook Overlay', why: 'Put the promise of the video in bold text on screen within the first second. A lot of viewers watch muted at first, so the hook needs to work without sound.' }
+        ]
+      },
+      body: {
+        title: 'Body & Pacing',
+        items: [
+          { title: 'Jump Cuts', why: 'Remove pauses, silences, and filler words. Every second without new information is a chance for someone to lose interest, so tightening pacing keeps the information flowing.' },
+          { title: 'B-Roll Cutaways', why: 'Cut to supporting footage every time a claim or story beat happens. It keeps the visuals fresh and reinforces what is being said instead of just watching a talking head.' },
+          { title: 'Dynamic Animated Captions', why: 'Captions that pop, scale, or change color on emphasized words. Since most social viewers watch muted, expressive captions do the job that vocal emphasis normally does.' },
+          { title: 'Pattern Interrupts Every 8–15s', why: 'A small sound effect, zoom, or cutaway placed periodically through the video. Attention naturally drifts every several seconds, and a small interrupt resets the clock before people tune out.' },
+          { title: 'Smooth Push-In / Snap Zoom', why: 'A slow push-in or a quick snap-zoom on an important line. It works like a camera operator pointing at what matters — it subconsciously tells the viewer "pay attention here."' },
+          { title: 'Segment Title Cards', why: 'Brief on-screen text marking a new part of the video ("Part 2: The Reveal"). It breaks a long video into digestible chunks and gives a sense of progress, similar to a loading bar.' }
+        ]
+      },
+      cta: {
+        title: 'Call-To-Action',
+        items: [
+          { title: 'Mid-Video Soft CTA', why: 'Ask for the subscribe right after a payoff moment, not at the very start. Trust and goodwill are highest right after you deliver value, so the ask converts better there.' },
+          { title: 'End-Screen Loop Bait', why: 'The final line or scene teases the next video or loops back to the intro. It keeps session watch time up and satisfies the brain\'s need to close an open loop.' },
+          { title: 'Question-Based CTA', why: 'Ending on a direct question to the audience invites comments — and comment volume and speed are strong engagement signals that platforms tend to reward.' },
+          { title: 'Visual CTA Card', why: 'Show an on-screen subscribe animation timed with the verbal ask, not just a spoken request. It reinforces the ask across two senses and still works for viewers watching muted.' }
+        ]
+      },
+      transitions: {
+        title: 'Transitions',
+        items: [
+          { title: 'Match Cuts', why: 'Cut from one shape or motion into a similar one in the next shot. It reads as seamless instead of jarring, keeping the visual flow uninterrupted.' },
+          { title: 'Whip Pan / Snap Transition', why: 'A fast blur-motion cut between two scenes. It injects energy and hides a hard cut, which is useful for fast-paced content that still needs to feel smooth.' },
+          { title: 'J-Cuts & L-Cuts', why: 'Let the audio from the next (or previous) clip start before the video cut happens. Sound bridging the cut makes it feel natural instead of abrupt.' },
+          { title: 'Zoom-Through Transition', why: 'Zoom into an object until it fills the frame, then cut to a new scene zoomed out from something similar. It creates a feeling of continuous movement that reads as more polished editing.' }
+        ]
+      },
+      effects: {
+        title: 'Special Effects',
+        items: [
+          { title: 'Sound-Design Emphasis', why: 'A whoosh, impact, or ding on key words or moments. Audio cues trigger attention even when someone isn\'t looking directly at the screen, pulling their eyes back.' },
+          { title: 'Freeze Frame + Callout', why: 'Pause on a key moment and annotate it on screen. It gives the editor control over pacing, letting an important point actually land instead of flying by.' },
+          { title: 'Consistent Color Grading', why: 'A consistent look across every video increases perceived production value and makes a channel more recognizable, which correlates with viewers coming back.' },
+          { title: 'Impact Frames / Camera Shake', why: 'A brief shake or flash on a big moment mimics the physical sensation of impact, making dramatic beats feel more visceral.' },
+          { title: 'Reaction Cutaways', why: 'Cutting to a reaction (in-game camera, green-screen, or crowd shot) adds a second layer of context that reinforces why a moment matters.' }
+        ]
+      },
+      retention: {
+        title: 'Aggressive Retention Techniques',
+        items: [
+          { title: 'The Loop Structure', why: 'End the video visually or narratively where it began. It nudges some viewers into an unconscious re-watch, and total watch time — including replays — is something platforms weigh heavily.' },
+          { title: 'Stacked Open Loops', why: 'Tease two or three payoffs early ("and later I\'ll show you X, but first...") and resolve them gradually. Multiple open curiosity gaps compound, so leaving reduces the chance of closing all of them.' },
+          { title: 'The Value Withhold', why: 'Place the single most valuable moment at the 60–80% mark instead of earlier. This has to be used honestly — the payoff needs to be real, or it damages trust and leads to drop-off next time.' },
+          { title: 'Micro-Cliffhangers', why: 'Cut right before a reveal, then briefly recap after the cut. This leans on the same Zeigarnik effect as the curiosity-gap hook: the brain dislikes incomplete information.' },
+          { title: 'Retention-Graph Re-Cuts', why: 'Reviewing the audience retention graph from a previous video and specifically fixing the timestamps where drop-off spikes happen. This is editing informed directly by data instead of guesswork.' },
+          { title: 'Breaking Your Own Pattern', why: "Occasionally change the established rhythm right when a viewer starts predicting it. Predictability lets the brain go on autopilot — breaking your own pattern re-engages attention." }
+        ]
+      }
+    };
+
+    function openTechniquesModal(key) {
+      const data = techniquesData[key];
+      if (!data) return;
+      document.getElementById('techniques-modal-title').textContent = data.title;
+      const body = document.getElementById('techniques-modal-body');
+      
+      body.innerHTML = data.items.map((item) => `
+        <div class="technique-entry">
+          <div class="technique-thumb" aria-hidden="true">
+            Clip example coming soon
+          </div>
+          <div>
+            <h4>${item.title}</h4>
+            <p>${item.why}</p>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('techniques-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeTechniquesModal() {
+      document.getElementById('techniques-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function openOrderModal(packageName) {
+      document.getElementById('order-modal-title').textContent = 'Order: ' + packageName;
+      
+      const waLink = document.getElementById('modal-wa-link');
+      const emailLink = document.getElementById('modal-email-link');
+
+      const waText = encodeURIComponent(`Hi Renan!\n\nI found your portfolio and I'm interested in the ${packageName}. Let's talk.`);
+      waLink.href = `https://wa.me/5551992340825?text=${waText}`;
+
+      const emailSubject = encodeURIComponent(`${packageName} Inquiry`);
+      const emailBody = encodeURIComponent(`Hi Renan,\n\nI'd like to discuss the ${packageName}.\n\nHere is a link to my channel or raw footage: `);
+      emailLink.href = `mailto:renansouzadeoliveira08@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+
+      document.getElementById('order-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeOrderModal() {
+      document.getElementById('order-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function showTooltip(e) {
+      const tooltip = document.getElementById('mouse-tooltip');
+      tooltip.classList.add('visible');
+      moveTooltip(e);
+    }
+    function moveTooltip(e) {
+      const tooltip = document.getElementById('mouse-tooltip');
+      tooltip.style.left = e.clientX + 'px';
+      tooltip.style.top = e.clientY + 'px';
+    }
+    function hideTooltip() {
+      document.getElementById('mouse-tooltip').classList.remove('visible');
+    }
+
+    function copyDiscord() {
+      const username = 'wispzjesus';
+      const toast = document.getElementById('copy-toast');
+      const confirm = () => {
+        toast.textContent = `Discord username copied: ${username}`;
+        toast.classList.add('show');
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+      };
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(username).then(confirm).catch(confirm);
+      } else {
+        confirm(); 
+      }
+    }
+  </script>
+
+</body>
+</html>
